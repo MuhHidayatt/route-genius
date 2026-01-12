@@ -3,14 +3,17 @@ import { FileUpload } from '@/components/FileUpload';
 import { ParameterInputs } from '@/components/ParameterInputs';
 import { OrdersPreview } from '@/components/OrdersPreview';
 import { ResultsPanel } from '@/components/ResultsPanel';
+import { ProblemExplanation } from '@/components/ProblemExplanation';
+import { DPTransparency } from '@/components/DPTransparency';
+import { ResultInterpretation } from '@/components/ResultInterpretation';
 import { parseCSV } from '@/lib/csv-parser';
-import { solveDPWithMemoization } from '@/lib/dp-solver';
+import { dp_solve } from '@/lib/dp-solver';
 import { Order, Parameters, OptimizationResult } from '@/lib/types';
-import { Truck, Play, RotateCcw, AlertCircle } from 'lucide-react';
+import { Truck, Play, RotateCcw, AlertCircle, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 
 const defaultParams: Parameters = {
-  averageSpeed: 30, // km/h
+  averageSpeed: 30,
   alpha: 1.0,
   beta: 0.5,
   gamma: 2.0,
@@ -27,7 +30,6 @@ const Index = () => {
   const handleFileContent = (content: string, name: string) => {
     setError(null);
     setResult(null);
-    
     try {
       const parsedOrders = parseCSV(content);
       setOrders(parsedOrders);
@@ -52,14 +54,11 @@ const Index = () => {
       toast.error('Please upload orders first');
       return;
     }
-
     setIsOptimizing(true);
     setError(null);
-
-    // Use setTimeout to allow UI to update before heavy computation
     setTimeout(() => {
       try {
-        const optimizationResult = solveDPWithMemoization(orders, params);
+        const optimizationResult = dp_solve(orders, params);
         setResult(optimizationResult);
         toast.success('Optimization complete!');
       } catch (err) {
@@ -91,7 +90,7 @@ const Index = () => {
                 Delivery Route Optimizer
               </h1>
               <p className="text-sm text-muted-foreground">
-                Dynamic Programming with Backward Recursion
+                Backward Recursion Dynamic Programming with Memoization
               </p>
             </div>
           </div>
@@ -102,9 +101,15 @@ const Index = () => {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Configuration Panel */}
           <div className="lg:col-span-1 space-y-6">
-            {/* Upload Section */}
+            {/* Section: Input Data */}
             <div className="card-elevated p-6">
-              <h2 className="section-header">Order Data</h2>
+              <h2 className="section-header flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-primary" />
+                Input Data
+              </h2>
+              <p className="text-xs text-muted-foreground mb-4">
+                Upload a CSV file containing order details (order_id, latitude, longitude, order_time, due_time).
+              </p>
               <FileUpload
                 onFileContent={handleFileContent}
                 fileName={fileName}
@@ -112,9 +117,15 @@ const Index = () => {
               />
             </div>
 
-            {/* Parameters Section */}
+            {/* Section: Optimization Parameters */}
             <div className="card-elevated p-6">
-              <h2 className="section-header">Parameters</h2>
+              <h2 className="section-header flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-primary" />
+                Optimization Parameters
+              </h2>
+              <p className="text-xs text-muted-foreground mb-4">
+                Configure courier speed and cost function weights. The algorithm minimizes: α×distance + β×time + γ×delay.
+              </p>
               <ParameterInputs params={params} onChange={setParams} />
             </div>
 
@@ -137,26 +148,13 @@ const Index = () => {
                   </>
                 )}
               </button>
-              <button
-                onClick={handleReset}
-                className="btn-secondary px-4"
-                title="Reset parameters"
-              >
+              <button onClick={handleReset} className="btn-secondary px-4" title="Reset parameters">
                 <RotateCcw className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Algorithm Info */}
-            <div className="p-4 rounded-xl bg-muted/50 border border-border">
-              <h3 className="font-medium text-foreground mb-2 text-sm">
-                Algorithm Details
-              </h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Uses top-down dynamic programming with memoization to solve the 
-                Traveling Salesman Problem variant. The Bellman equation minimizes 
-                weighted cost across all delivery sequences.
-              </p>
-            </div>
+            {/* Problem Explanation (always visible) */}
+            <ProblemExplanation />
           </div>
 
           {/* Results Panel */}
@@ -171,23 +169,24 @@ const Index = () => {
               </div>
             )}
 
-            {orders.length > 0 && !result && (
-              <OrdersPreview orders={orders} />
-            )}
+            {orders.length > 0 && !result && <OrdersPreview orders={orders} />}
 
-            {result && <ResultsPanel result={result} />}
+            {result && (
+              <>
+                <ResultsPanel result={result} />
+                <DPTransparency statistics={result.dpStatistics} />
+                <ResultInterpretation result={result} />
+              </>
+            )}
 
             {orders.length === 0 && !error && (
               <div className="card-elevated p-12 text-center">
                 <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
                   <Truck className="w-8 h-8 text-muted-foreground" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">
-                  No orders loaded
-                </h3>
+                <h3 className="text-lg font-semibold text-foreground mb-2">No orders loaded</h3>
                 <p className="text-muted-foreground max-w-sm mx-auto">
-                  Upload a CSV file with your delivery orders to get started. 
-                  You can download a sample file to see the required format.
+                  Upload a CSV file with your delivery orders to get started.
                 </p>
               </div>
             )}
@@ -195,11 +194,10 @@ const Index = () => {
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="border-t mt-auto">
         <div className="container max-w-7xl mx-auto px-4 py-6">
           <p className="text-sm text-muted-foreground text-center">
-            Last-Mile Delivery Optimization • Pontianak City • Harbolnas 2024
+            Last-Mile Delivery Optimization • Backward Recursion DP • Academic Implementation
           </p>
         </div>
       </footer>

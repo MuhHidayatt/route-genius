@@ -7,6 +7,11 @@ import {
   Zap,
   MapPin 
 } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface ResultsPanelProps {
   result: OptimizationResult;
@@ -17,10 +22,11 @@ interface StatCardProps {
   label: string;
   value: string;
   subValue?: string;
+  tooltip?: string;
 }
 
-function StatCard({ icon, label, value, subValue }: StatCardProps) {
-  return (
+function StatCard({ icon, label, value, subValue, tooltip }: StatCardProps) {
+  const content = (
     <div className="stat-card">
       <div className="flex items-center gap-2 text-muted-foreground mb-1">
         {icon}
@@ -30,6 +36,16 @@ function StatCard({ icon, label, value, subValue }: StatCardProps) {
       {subValue && <div className="text-xs text-muted-foreground">{subValue}</div>}
     </div>
   );
+
+  if (tooltip) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{content}</TooltipTrigger>
+        <TooltipContent><p className="text-sm">{tooltip}</p></TooltipContent>
+      </Tooltip>
+    );
+  }
+  return content;
 }
 
 export function ResultsPanel({ result }: ResultsPanelProps) {
