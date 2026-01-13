@@ -7,7 +7,7 @@ interface OrdersPreviewProps {
 
 export function OrdersPreview({ orders }: OrdersPreviewProps) {
   const formatTime = (date: Date): string => {
-    return date.toLocaleTimeString('en-US', { 
+    return date.toLocaleTimeString('id-ID', { 
       hour: '2-digit', 
       minute: '2-digit',
       hour12: false 
@@ -19,18 +19,18 @@ export function OrdersPreview({ orders }: OrdersPreviewProps) {
       <div className="p-4 border-b bg-muted/30 flex items-center gap-2">
         <Package className="w-5 h-5 text-primary" />
         <h3 className="font-semibold text-foreground">
-          Loaded Orders ({orders.length})
+          Data Pesanan Dimuat ({orders.length} pesanan)
         </h3>
       </div>
       <div className="overflow-x-auto max-h-64">
         <table className="data-table">
           <thead className="sticky top-0 bg-card">
             <tr>
-              <th>Order ID</th>
-              <th>Latitude</th>
-              <th>Longitude</th>
-              <th>Order Time</th>
-              <th>Due Time</th>
+              <th>ID Pesanan</th>
+              <th>Lintang</th>
+              <th>Bujur</th>
+              <th>Waktu Order</th>
+              <th>Tenggat Waktu</th>
             </tr>
           </thead>
           <tbody>

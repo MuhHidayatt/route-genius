@@ -9,7 +9,7 @@ import { ResultInterpretation } from '@/components/ResultInterpretation';
 import { parseCSV } from '@/lib/csv-parser';
 import { dp_solve } from '@/lib/dp-solver';
 import { Order, Parameters, OptimizationResult } from '@/lib/types';
-import { Truck, Play, RotateCcw, AlertCircle, BookOpen } from 'lucide-react';
+import { Truck, Play, RotateCcw, AlertCircle, GraduationCap } from 'lucide-react';
 import { toast } from 'sonner';
 
 const defaultParams: Parameters = {
@@ -34,9 +34,9 @@ const Index = () => {
       const parsedOrders = parseCSV(content);
       setOrders(parsedOrders);
       setFileName(name);
-      toast.success(`Loaded ${parsedOrders.length} orders`);
+      toast.success(`Berhasil memuat ${parsedOrders.length} pesanan`);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to parse CSV';
+      const message = err instanceof Error ? err.message : 'Gagal membaca file CSV';
       setError(message);
       toast.error(message);
     }
@@ -51,7 +51,7 @@ const Index = () => {
 
   const handleOptimize = async () => {
     if (orders.length === 0) {
-      toast.error('Please upload orders first');
+      toast.error('Silakan unggah data pesanan terlebih dahulu');
       return;
     }
     setIsOptimizing(true);
@@ -60,9 +60,9 @@ const Index = () => {
       try {
         const optimizationResult = dp_solve(orders, params);
         setResult(optimizationResult);
-        toast.success('Optimization complete!');
+        toast.success('Optimasi berhasil diselesaikan!');
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Optimization failed';
+        const message = err instanceof Error ? err.message : 'Optimasi gagal';
         setError(message);
         toast.error(message);
       } finally {
@@ -77,127 +77,173 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-              <Truck className="w-5 h-5 text-primary-foreground" />
+      <header className="border-b bg-card/95 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container max-w-6xl mx-auto px-4 py-5">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-md">
+              <Truck className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-foreground">
-                Delivery Route Optimizer
+              <h1 className="text-xl md:text-2xl font-bold text-foreground">
+                Sistem Optimasi Rute dan Penjadwalan Pengiriman Last-Mile
               </h1>
-              <p className="text-sm text-muted-foreground">
-                Backward Recursion Dynamic Programming with Memoization
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <GraduationCap className="w-4 h-4" />
+                Menggunakan Dynamic Programming (Backward Recursion)
               </p>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="container max-w-7xl mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Configuration Panel */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* Section: Input Data */}
-            <div className="card-elevated p-6">
-              <h2 className="section-header flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-primary" />
-                Input Data
-              </h2>
-              <p className="text-xs text-muted-foreground mb-4">
-                Upload a CSV file containing order details (order_id, latitude, longitude, order_time, due_time).
-              </p>
-              <FileUpload
-                onFileContent={handleFileContent}
-                fileName={fileName}
-                onClear={handleClear}
-              />
+      <main className="container max-w-6xl mx-auto px-4 py-8 flex-1">
+        <div className="space-y-8">
+          
+          {/* Section 1: Input Data & Parameter */}
+          <section className="card-elevated p-6 md:p-8">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <span className="text-primary font-bold text-sm">1</span>
+              </div>
+              <h2 className="text-lg font-semibold text-foreground">Data & Parameter Input</h2>
             </div>
+            <p className="text-sm text-muted-foreground mb-6 ml-11">
+              Unggah dataset pesanan dan atur parameter optimasi untuk algoritma Dynamic Programming.
+            </p>
+            
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Dataset Upload */}
+              <div>
+                <h3 className="text-sm font-medium text-foreground mb-3">Unggah Dataset (CSV)</h3>
+                <p className="text-xs text-muted-foreground mb-3">
+                  File harus berisi kolom: order_id, latitude, longitude, order_time, due_time
+                </p>
+                <FileUpload
+                  onFileContent={handleFileContent}
+                  fileName={fileName}
+                  onClear={handleClear}
+                />
+              </div>
 
-            {/* Section: Optimization Parameters */}
-            <div className="card-elevated p-6">
-              <h2 className="section-header flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-primary" />
-                Optimization Parameters
-              </h2>
-              <p className="text-xs text-muted-foreground mb-4">
-                Configure courier speed and cost function weights. The algorithm minimizes: α×distance + β×time + γ×delay.
-              </p>
-              <ParameterInputs params={params} onChange={setParams} />
+              {/* Parameters */}
+              <div>
+                <h3 className="text-sm font-medium text-foreground mb-3">Parameter Optimasi</h3>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Fungsi biaya: <span className="font-mono">cost = α×jarak + β×waktu + γ×keterlambatan</span>
+                </p>
+                <ParameterInputs params={params} onChange={setParams} />
+              </div>
             </div>
+          </section>
 
-            {/* Actions */}
-            <div className="flex gap-3">
+          {/* Section 2: Action Button */}
+          <section className="flex flex-col items-center gap-4">
+            <div className="flex items-center gap-3">
               <button
                 onClick={handleOptimize}
                 disabled={orders.length === 0 || isOptimizing}
-                className="btn-primary flex-1 gap-2"
+                className="btn-primary gap-3 text-base px-8 py-4 shadow-lg"
               >
                 {isOptimizing ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                    Optimizing...
+                    <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                    Memproses Optimasi...
                   </>
                 ) : (
                   <>
-                    <Play className="w-4 h-4" />
-                    Optimize Delivery
+                    <Play className="w-5 h-5" />
+                    Jalankan Optimasi Pengiriman
                   </>
                 )}
               </button>
-              <button onClick={handleReset} className="btn-secondary px-4" title="Reset parameters">
-                <RotateCcw className="w-4 h-4" />
+              <button 
+                onClick={handleReset} 
+                className="btn-secondary px-4 py-4" 
+                title="Reset parameter ke nilai awal"
+              >
+                <RotateCcw className="w-5 h-5" />
               </button>
             </div>
-
-            {/* Problem Explanation (always visible) */}
-            <ProblemExplanation />
-          </div>
-
-          {/* Results Panel */}
-          <div className="lg:col-span-2 space-y-6">
-            {error && (
-              <div className="flex items-start gap-3 p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive animate-fade-in">
-                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium">Error</p>
-                  <p className="text-sm opacity-90">{error}</p>
-                </div>
-              </div>
+            {orders.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                Silakan unggah file CSV untuk memulai optimasi
+              </p>
             )}
+          </section>
 
-            {orders.length > 0 && !result && <OrdersPreview orders={orders} />}
+          {/* Error Display */}
+          {error && (
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive animate-fade-in">
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium">Terjadi Kesalahan</p>
+                <p className="text-sm opacity-90">{error}</p>
+              </div>
+            </div>
+          )}
 
-            {result && (
-              <>
+          {/* Orders Preview */}
+          {orders.length > 0 && !result && <OrdersPreview orders={orders} />}
+
+          {/* Section 3: Results */}
+          {result && (
+            <>
+              <section>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <span className="text-primary font-bold text-sm">2</span>
+                  </div>
+                  <h2 className="text-lg font-semibold text-foreground">Hasil Optimasi</h2>
+                </div>
                 <ResultsPanel result={result} />
-                <DPTransparency statistics={result.dpStatistics} />
-                <ResultInterpretation result={result} />
-              </>
-            )}
+              </section>
 
-            {orders.length === 0 && !error && (
-              <div className="card-elevated p-12 text-center">
-                <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
-                  <Truck className="w-8 h-8 text-muted-foreground" />
+              <section>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <span className="text-primary font-bold text-sm">3</span>
+                  </div>
+                  <h2 className="text-lg font-semibold text-foreground">Transparansi Algoritma DP</h2>
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">No orders loaded</h3>
-                <p className="text-muted-foreground max-w-sm mx-auto">
-                  Upload a CSV file with your delivery orders to get started.
-                </p>
+                <DPTransparency statistics={result.dpStatistics} />
+              </section>
+
+              <section>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <span className="text-primary font-bold text-sm">4</span>
+                  </div>
+                  <h2 className="text-lg font-semibold text-foreground">Interpretasi Hasil</h2>
+                </div>
+                <ResultInterpretation result={result} />
+              </section>
+            </>
+          )}
+
+          {/* Empty State */}
+          {orders.length === 0 && !error && (
+            <section className="card-elevated p-12 text-center">
+              <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
+                <Truck className="w-8 h-8 text-muted-foreground" />
               </div>
-            )}
-          </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">Belum Ada Pesanan</h3>
+              <p className="text-muted-foreground max-w-md mx-auto">
+                Unggah file CSV berisi data pesanan pengiriman untuk memulai proses optimasi rute.
+              </p>
+            </section>
+          )}
+
+          {/* Problem Explanation - Always at bottom */}
+          <ProblemExplanation />
         </div>
       </main>
 
-      <footer className="border-t mt-auto">
-        <div className="container max-w-7xl mx-auto px-4 py-6">
+      <footer className="border-t mt-auto bg-card/50">
+        <div className="container max-w-6xl mx-auto px-4 py-6">
           <p className="text-sm text-muted-foreground text-center">
-            Last-Mile Delivery Optimization • Backward Recursion DP • Academic Implementation
+            Optimasi Pengiriman Last-Mile • Backward Recursion Dynamic Programming • Implementasi Akademis
           </p>
         </div>
       </footer>

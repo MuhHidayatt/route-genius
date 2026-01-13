@@ -1,8 +1,8 @@
 /**
- * DP TRANSPARENCY COMPONENT
+ * KOMPONEN TRANSPARANSI DP
  * 
- * Shows intermediate outputs from the Dynamic Programming algorithm
- * for educational understanding of how memoization and recursion work.
+ * Menampilkan output antara dari algoritma Dynamic Programming
+ * untuk pemahaman edukatif tentang cara kerja memoization dan rekursi.
  */
 
 import { DPStatistics } from '@/lib/types';
@@ -37,82 +37,82 @@ export function DPTransparency({ statistics }: DPTransparencyProps) {
     <div className="card-elevated p-6 animate-fade-in">
       <h3 className="section-header flex items-center gap-2">
         <Database className="w-5 h-5 text-primary" />
-        Dynamic Programming Transparency
+        Transparansi Dynamic Programming
         <Tooltip>
           <TooltipTrigger asChild>
             <Info className="w-4 h-4 text-muted-foreground cursor-help" />
           </TooltipTrigger>
           <TooltipContent className="max-w-xs">
             <p className="text-sm">
-              This section shows how the DP algorithm works internally,
-              including state evaluation and memoization statistics.
+              Bagian ini menunjukkan cara kerja internal algoritma DP,
+              termasuk statistik evaluasi state dan memoization.
             </p>
           </TooltipContent>
         </Tooltip>
       </h3>
 
-      {/* Statistics Summary */}
+      {/* Ringkasan Statistik */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <StatBox
           icon={<Layers className="w-4 h-4" />}
-          label="States Evaluated"
+          label="State Dievaluasi"
           value={statistics.totalStatesEvaluated}
-          tooltip="Number of unique states computed by the DP algorithm"
+          tooltip="Jumlah state unik yang dihitung oleh algoritma DP"
         />
         <StatBox
           icon={<Repeat className="w-4 h-4" />}
-          label="Memo Hits"
+          label="Memo Hit"
           value={statistics.totalMemoHits}
-          tooltip="Times a cached result was reused (avoiding recomputation)"
+          tooltip="Berapa kali hasil cache digunakan kembali (menghindari perhitungan ulang)"
         />
         <StatBox
           icon={<Database className="w-4 h-4" />}
-          label="States Cached"
+          label="State Tersimpan"
           value={statistics.uniqueStatesStored}
-          tooltip="Total states stored in memoization cache"
+          tooltip="Total state yang tersimpan dalam cache memoization"
         />
         <StatBox
           icon={<ArrowDown className="w-4 h-4" />}
-          label="Max Depth"
+          label="Kedalaman Maks"
           value={statistics.maxRecursionDepth}
-          tooltip="Maximum recursion depth (equals number of orders)"
+          tooltip="Kedalaman rekursi maksimum (sama dengan jumlah pesanan)"
         />
       </div>
 
-      {/* Efficiency Indicator */}
+      {/* Indikator Efisiensi */}
       <div className="p-3 rounded-lg bg-muted/50 border border-border mb-6">
         <div className="flex items-center gap-2 mb-2">
           <CheckCircle className="w-4 h-4 text-green-500" />
-          <span className="text-sm font-medium text-foreground">Memoization Efficiency</span>
+          <span className="text-sm font-medium text-foreground">Efisiensi Memoization</span>
         </div>
         <p className="text-xs text-muted-foreground">
           {statistics.totalMemoHits > 0 ? (
             <>
-              The algorithm avoided <strong className="text-foreground">{statistics.totalMemoHits}</strong> redundant 
-              calculations by reusing cached results. This demonstrates how overlapping subproblems 
-              are efficiently handled through memoization.
+              Algoritma menghindari <strong className="text-foreground">{statistics.totalMemoHits}</strong> perhitungan 
+              redundan dengan menggunakan kembali hasil cache. Ini menunjukkan bagaimana overlapping subproblems 
+              ditangani secara efisien melalui memoization.
             </>
           ) : (
             <>
-              With the current dataset, each state was unique (no overlapping subproblems detected).
-              This can happen with small datasets or when time discretization creates distinct states.
+              Dengan dataset saat ini, setiap state bersifat unik (tidak terdeteksi overlapping subproblems).
+              Ini bisa terjadi pada dataset kecil atau ketika diskretisasi waktu menghasilkan state yang berbeda.
             </>
           )}
         </p>
       </div>
 
       <Accordion type="single" collapsible className="w-full">
-        {/* Memoization Examples */}
+        {/* Contoh Memoization */}
         <AccordionItem value="memo-examples">
           <AccordionTrigger className="text-sm font-medium text-foreground hover:no-underline">
             <span className="flex items-center gap-2">
               <Database className="w-4 h-4 text-primary" />
-              Memoization Examples ({statistics.memoizationExamples.length} shown)
+              Contoh Memoization ({statistics.memoizationExamples.length} ditampilkan)
             </span>
           </AccordionTrigger>
           <AccordionContent className="pt-2">
             <p className="text-xs text-muted-foreground mb-3">
-              Each memoized state stores the optimal cost-to-go and best next order from that state.
+              Setiap state yang di-memo menyimpan biaya optimal ke depan (cost-to-go) dan pesanan terbaik berikutnya dari state tersebut.
             </p>
             <div className="space-y-2">
               {statistics.memoizationExamples.map((example, index) => (
@@ -128,31 +128,31 @@ export function DPTransparency({ statistics }: DPTransparencyProps) {
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-muted-foreground">
                     <div>
-                      <span className="text-foreground/70">Location:</span>{' '}
+                      <span className="text-foreground/70">Lokasi:</span>{' '}
                       <span className="font-mono">{example.currentLocationDescription}</span>
                     </div>
                     <div>
-                      <span className="text-foreground/70">Time:</span>{' '}
+                      <span className="text-foreground/70">Waktu:</span>{' '}
                       <span className="font-mono">{example.currentTimeFormatted}</span>
                     </div>
                     <div>
-                      <span className="text-foreground/70">Remaining:</span>{' '}
+                      <span className="text-foreground/70">Tersisa:</span>{' '}
                       <span className="font-mono">
                         {example.remainingOrderIds.length > 0 
                           ? example.remainingOrderIds.slice(0, 3).join(', ')
-                          : '(none)'}
+                          : '(tidak ada)'}
                         {example.remainingOrderIds.length > 3 && '...'}
                       </span>
                     </div>
                     <div>
-                      <span className="text-foreground/70">Best Next:</span>{' '}
+                      <span className="text-foreground/70">Berikutnya:</span>{' '}
                       <span className="font-mono text-primary">
                         {example.bestNextOrder || 'Terminal'}
                       </span>
                     </div>
                   </div>
                   <div className="mt-2 pt-2 border-t border-border">
-                    <span className="text-foreground/70">Optimal Cost-to-Go:</span>{' '}
+                    <span className="text-foreground/70">Biaya Optimal ke Depan:</span>{' '}
                     <span className="font-mono font-medium text-foreground">
                       {example.optimalCost.toFixed(2)}
                     </span>
@@ -163,17 +163,17 @@ export function DPTransparency({ statistics }: DPTransparencyProps) {
           </AccordionContent>
         </AccordionItem>
 
-        {/* Recursion Trace */}
+        {/* Jejak Rekursi */}
         <AccordionItem value="recursion-trace">
           <AccordionTrigger className="text-sm font-medium text-foreground hover:no-underline">
             <span className="flex items-center gap-2">
               <RotateCcw className="w-4 h-4 text-primary" />
-              Recursion Trace (first {Math.min(statistics.recursionTrace.length, 20)} steps)
+              Jejak Rekursi ({Math.min(statistics.recursionTrace.length, 20)} langkah pertama)
             </span>
           </AccordionTrigger>
           <AccordionContent className="pt-2">
             <p className="text-xs text-muted-foreground mb-3">
-              This trace shows how the algorithm evaluates states recursively.
+              Jejak ini menunjukkan bagaimana algoritma mengevaluasi state secara rekursif.
             </p>
             <div className="space-y-1 max-h-64 overflow-y-auto">
               {statistics.recursionTrace.slice(0, 20).map((step, index) => (
@@ -194,7 +194,7 @@ export function DPTransparency({ statistics }: DPTransparencyProps) {
                     )}
                     {step.cost !== undefined && (
                       <span className="ml-2 text-foreground font-mono">
-                        (cost: {step.cost.toFixed(2)})
+                        (biaya: {step.cost.toFixed(2)})
                       </span>
                     )}
                   </div>
@@ -203,7 +203,7 @@ export function DPTransparency({ statistics }: DPTransparencyProps) {
             </div>
             <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-blue-500" /> Evaluate
+                <span className="w-2 h-2 rounded-full bg-blue-500" /> Evaluasi
               </span>
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-green-500" /> Memo Hit
@@ -215,46 +215,46 @@ export function DPTransparency({ statistics }: DPTransparencyProps) {
           </AccordionContent>
         </AccordionItem>
 
-        {/* Bellman Equation */}
+        {/* Persamaan Bellman */}
         <AccordionItem value="bellman">
           <AccordionTrigger className="text-sm font-medium text-foreground hover:no-underline">
             <span className="flex items-center gap-2">
               <Save className="w-4 h-4 text-primary" />
-              Bellman Equation Explained
+              Penjelasan Persamaan Bellman
             </span>
           </AccordionTrigger>
           <AccordionContent className="pt-2 space-y-3">
             <p className="text-xs text-muted-foreground">
-              The algorithm uses the <strong className="text-foreground">Bellman equation</strong> for 
+              Algoritma ini menggunakan <strong className="text-foreground">persamaan Bellman</strong> untuk 
               backward recursion:
             </p>
             <div className="p-4 bg-muted/50 rounded-lg font-mono text-sm text-center">
               <div className="text-foreground">
-                f(state) = <span className="text-primary">min</span> <sub className="text-xs">j ∈ remaining</sub> {'{'}
+                f(state) = <span className="text-primary">min</span> <sub className="text-xs">j ∈ tersisa</sub> {'{'}
               </div>
               <div className="pl-8 text-foreground">
-                cost(state → j) + f(next_state)
+                biaya(state → j) + f(state_berikutnya)
               </div>
               <div className="text-foreground">{'}'}</div>
             </div>
             <ul className="text-xs text-muted-foreground space-y-1">
               <li>
-                <strong className="text-foreground">f(state)</strong>: Optimal cost-to-go from this state
+                <strong className="text-foreground">f(state)</strong>: Biaya optimal ke depan dari state ini
               </li>
               <li>
-                <strong className="text-foreground">min</strong>: Take the minimum over all choices
+                <strong className="text-foreground">min</strong>: Ambil nilai minimum dari semua pilihan
               </li>
               <li>
-                <strong className="text-foreground">cost(state → j)</strong>: Immediate cost of delivering order j
+                <strong className="text-foreground">biaya(state → j)</strong>: Biaya langsung untuk mengirim pesanan j
               </li>
               <li>
-                <strong className="text-foreground">f(next_state)</strong>: Optimal cost from the resulting state
+                <strong className="text-foreground">f(state_berikutnya)</strong>: Biaya optimal dari state hasil transisi
               </li>
             </ul>
             <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-xs">
               <strong className="text-primary">Base Case:</strong>{' '}
               <span className="text-muted-foreground">
-                When remaining_orders is empty, f(state) = 0 (no more cost to incur)
+                Ketika pesanan_tersisa kosong, f(state) = 0 (tidak ada biaya lagi)
               </span>
             </div>
           </AccordionContent>
