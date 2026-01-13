@@ -8,9 +8,10 @@ export interface Order {
 
 export interface Parameters {
   averageSpeed: number; // km/h
-  alpha: number; // distance weight
-  beta: number; // travel time weight
-  gamma: number; // delay penalty weight
+  alpha: number;
+  beta: number;
+  gamma: number;
+  serviceTime: number; // menit per order
 }
 
 export interface DeliveryStep {

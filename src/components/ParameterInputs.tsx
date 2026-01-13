@@ -23,11 +23,23 @@ interface ParamFieldProps {
   max?: number;
 }
 
-function ParamField({ label, value, onChange, tooltip, description, unit, step = 0.1, min = 0, max }: ParamFieldProps) {
+function ParamField({
+  label,
+  value,
+  onChange,
+  tooltip,
+  description,
+  unit,
+  step = 0.1,
+  min = 0,
+  max,
+}: ParamFieldProps) {
   return (
     <div className="space-y-1.5">
       <div className="flex items-center gap-2">
-        <label className="text-sm font-medium text-foreground">{label}</label>
+        <label className="text-sm font-medium text-foreground">
+          {label}
+        </label>
         <Tooltip>
           <TooltipTrigger asChild>
             <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
@@ -37,14 +49,18 @@ function ParamField({ label, value, onChange, tooltip, description, unit, step =
           </TooltipContent>
         </Tooltip>
       </div>
+
       {description && (
-        <p className="text-xs text-muted-foreground">{description}</p>
+        <p className="text-xs text-muted-foreground">
+          {description}
+        </p>
       )}
+
       <div className="relative">
         <input
           type="number"
           value={value}
-          onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+          onChange={(e) => onChange(Number(e.target.value) || 0)}
           step={step}
           min={min}
           max={max}
@@ -66,48 +82,77 @@ export function ParameterInputs({ params, onChange }: ParameterInputsProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <ParamField
-        label="Kecepatan Rata-rata Kurir"
-        value={params.averageSpeed}
-        onChange={(v) => updateParam('averageSpeed', v)}
-        tooltip="Kecepatan rata-rata kurir dalam kilometer per jam"
-        description="Digunakan untuk menghitung waktu tempuh"
-        unit="km/jam"
-        step={1}
-        min={5}
-        max={100}
-      />
-      
-      <div className="pt-2">
-        <p className="text-sm font-medium text-foreground mb-1">Bobot Fungsi Biaya</p>
-        <p className="text-xs text-muted-foreground mb-3">
+    <div className="space-y-6">
+      {/* ===============================
+          PARAMETER OPERASIONAL
+      =============================== */}
+      <div className="space-y-4">
+        <p className="text-sm font-medium text-foreground">
+          Parameter Operasional
+        </p>
+
+        <ParamField
+          label="Kecepatan Rata-rata Kurir"
+          value={params.averageSpeed}
+          onChange={(v) => updateParam('averageSpeed', v)}
+          tooltip="Kecepatan rata-rata kurir selama pengiriman"
+          description="Digunakan untuk menghitung waktu tempuh antar lokasi"
+          unit="km/jam"
+          step={1}
+          min={5}
+          max={100}
+        />
+
+        <ParamField
+          label="Waktu Pelayanan per Order"
+          value={params.serviceTime}
+          onChange={(v) => updateParam('serviceTime', v)}
+          tooltip="Waktu yang dibutuhkan untuk proses serah terima paket di lokasi pelanggan"
+          description="Merepresentasikan waktu tunggu, konfirmasi, dan administrasi pengiriman"
+          unit="menit"
+          step={10}
+          min={0}
+          max={30}
+        />
+      </div>
+
+      {/* ===============================
+          BOBOT FUNGSI BIAYA
+      =============================== */}
+      <div className="space-y-3 pt-2">
+        <p className="text-sm font-medium text-foreground">
+          Bobot Fungsi Biaya
+        </p>
+        <p className="text-xs text-muted-foreground">
           Tentukan prioritas relatif antara jarak, waktu, dan keterlambatan
         </p>
+
         <div className="grid grid-cols-3 gap-3">
           <ParamField
             label="α (Jarak)"
             value={params.alpha}
             onChange={(v) => updateParam('alpha', v)}
-            tooltip="Bobot untuk biaya jarak (dalam km)"
+            tooltip="Bobot untuk biaya jarak tempuh (km)"
             step={0.1}
             min={0}
             max={10}
           />
+
           <ParamField
             label="β (Waktu)"
             value={params.beta}
             onChange={(v) => updateParam('beta', v)}
-            tooltip="Bobot untuk biaya waktu tempuh (dalam menit)"
+            tooltip="Bobot untuk biaya waktu tempuh (menit)"
             step={0.1}
             min={0}
             max={10}
           />
+
           <ParamField
             label="γ (Keterlambatan)"
             value={params.gamma}
             onChange={(v) => updateParam('gamma', v)}
-            tooltip="Bobot untuk penalti keterlambatan (dalam menit)"
+            tooltip="Bobot penalti keterlambatan pengiriman (menit)"
             step={0.1}
             min={0}
             max={10}

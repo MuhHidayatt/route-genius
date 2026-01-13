@@ -17,6 +17,7 @@ const defaultParams: Parameters = {
   alpha: 1.0,
   beta: 0.5,
   gamma: 2.0,
+  serviceTime: 5,
 };
 
 const Index = () => {
@@ -243,7 +244,10 @@ const Index = () => {
       <footer className="border-t mt-auto bg-card/50">
         <div className="container max-w-6xl mx-auto px-4 py-6">
           <p className="text-sm text-muted-foreground text-center">
-            Optimasi Pengiriman Last-Mile • Backward Recursion Dynamic Programming • Implementasi Akademis
+            Optimasi Pengiriman Last-Mile • Backward Recursion Dynamic Programming
+          </p>
+          <p className="text-sm text-muted-foreground text-center">
+            Kelompok 03 Riset Operasi • TI22D • 2026
           </p>
         </div>
       </footer>

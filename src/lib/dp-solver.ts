@@ -300,7 +300,9 @@ export function dp_solve(
       
       const distance = compute_distance(currentLocation, orderLocation);
       const travelTime = compute_travel_time(distance, params.averageSpeed);
-      const arrivalTimeMs = currentTime + travelTime * 60000;
+      const serviceTime = params.serviceTime ?? 5; // default 5 menit
+      const arrivalTimeMs =
+        currentTime + (travelTime + serviceTime) * 60000;
       const arrivalTime = new Date(arrivalTimeMs);
       const delayPenalty = compute_delay_penalty(arrivalTime, order.due_time);
       
@@ -390,7 +392,9 @@ export function dp_solve(
     
     const distance = compute_distance(currentLoc, orderLocation);
     const travelTime = compute_travel_time(distance, params.averageSpeed);
-    const arrivalTimeMs = currentTime + travelTime * 60000;
+    const serviceTime = params.serviceTime ?? 5;
+    const arrivalTimeMs =
+      currentTime + (travelTime + serviceTime) * 60000;
     const arrivalTime = new Date(arrivalTimeMs);
     const delayPenalty = compute_delay_penalty(arrivalTime, order.due_time);
     
@@ -399,19 +403,23 @@ export function dp_solve(
     // Generate decision explanation
     const alternativesCount = remainingIds.size - 1;
     let reason = '';
-    
+
     if (delayPenalty === 0 && alternativesCount > 0) {
-      reason = `Selected because it can be reached on time (by ${formatMinutes(
+      reason = `Dipilih karena dapat dikirim tepat waktu (${formatMinutes(
         (order.due_time.getTime() - arrivalTimeMs) / 60000
-      )} early) while being ${distance.toFixed(2)} km away.`;
+      )} lebih awal) dengan jarak tempuh ${distance.toFixed(2)} km.`;
     } else if (delayPenalty > 0) {
-      reason = `Selected despite ${formatMinutes(delayPenalty)} delay because alternative routes would result in higher total cost.`;
+      reason = `Dipilih meskipun mengalami keterlambatan ${formatMinutes(
+        delayPenalty
+      )}, karena alternatif rute lain menghasilkan biaya total yang lebih tinggi.`;
     } else if (alternativesCount === 0) {
-      reason = `Only remaining order to deliver.`;
+      reason = `Merupakan satu-satunya pesanan yang tersisa untuk dikirim.`;
     } else {
-      reason = `Optimal choice among ${alternativesCount + 1} options based on weighted cost calculation.`;
+      reason = `Merupakan pilihan optimal di antara ${
+        alternativesCount + 1
+      } alternatif berdasarkan perhitungan biaya berbobot.`;
     }
-    
+
     keyDecisions.push({
       step: stepNumber,
       orderId: order.order_id,
@@ -480,39 +488,42 @@ export function dp_solve(
   }
 
   // ========================================
+  // ========================================
   // GENERATE EXPLANATION
   // ========================================
   const hasDelays = totalDelayPenalty > 0;
   const delayOrdersCount = sequence.filter(s => s.delayPenalty > 0).length;
-  
-  let summary = `The optimal route delivers ${orders.length} orders covering ${totalDistance.toFixed(2)} km `;
-  summary += `in ${formatMinutes(totalTravelTime)} total travel time. `;
-  
-  if (hasDelays) {
-    summary += `${delayOrdersCount} order(s) arrived late, incurring ${formatMinutes(totalDelayPenalty)} of delay penalties. `;
-  } else {
-    summary += `All orders were delivered on time. `;
-  }
-  
-  summary += `The algorithm evaluated ${statesEvaluated} unique states and reused ${memoHits} cached results.`;
 
-  // Tradeoff analysis
-  let tradeoffAnalysis = `With the current weights (α=${params.alpha}, β=${params.beta}, γ=${params.gamma}), `;
-  
-  if (params.gamma > params.alpha && params.gamma > params.beta) {
-    tradeoffAnalysis += `delay penalties are heavily weighted, so the algorithm prioritizes on-time delivery even if it means traveling longer distances. `;
-  } else if (params.alpha > params.beta && params.alpha > params.gamma) {
-    tradeoffAnalysis += `distance is the primary factor, so the algorithm minimizes total kilometers traveled. `;
-  } else if (params.beta > params.alpha && params.beta > params.gamma) {
-    tradeoffAnalysis += `travel time is prioritized, resulting in routes that minimize time spent on the road. `;
+  let summary = `Rute optimal mengirimkan ${orders.length} pesanan dengan total jarak tempuh ${totalDistance.toFixed(2)} km `;
+  summary += `dan total waktu perjalanan ${formatMinutes(totalTravelTime)}. `;
+
+  if (hasDelays) {
+    summary += `${delayOrdersCount} pesanan mengalami keterlambatan dengan total penalti keterlambatan sebesar ${formatMinutes(
+      totalDelayPenalty
+    )}. `;
   } else {
-    tradeoffAnalysis += `the weights are balanced, creating a compromise between distance, time, and on-time delivery. `;
+    summary += `Seluruh pesanan berhasil dikirim tepat waktu. `;
   }
-  
-  tradeoffAnalysis += `Total weighted cost breakdown: `;
-  tradeoffAnalysis += `${((totalDistanceCost / totalCost) * 100).toFixed(1)}% from distance, `;
-  tradeoffAnalysis += `${((totalTimeCost / totalCost) * 100).toFixed(1)}% from travel time, `;
-  tradeoffAnalysis += `${((totalDelayCost / totalCost) * 100).toFixed(1)}% from delay penalties.`;
+
+  summary += `Algoritma mengevaluasi ${statesEvaluated} state unik dan menggunakan kembali ${memoHits} hasil perhitungan dari memoisasi.`;
+
+  // Analisis trade-off
+  let tradeoffAnalysis = `Dengan bobot yang digunakan (α=${params.alpha}, β=${params.beta}, γ=${params.gamma}), `;
+
+  if (params.gamma > params.alpha && params.gamma > params.beta) {
+    tradeoffAnalysis += `penalti keterlambatan memiliki prioritas tertinggi, sehingga algoritma memfokuskan solusi pada pengiriman tepat waktu meskipun harus menempuh jarak yang lebih jauh. `;
+  } else if (params.alpha > params.beta && params.alpha > params.gamma) {
+    tradeoffAnalysis += `jarak menjadi faktor utama, sehingga algoritma berupaya meminimalkan total jarak tempuh pengiriman. `;
+  } else if (params.beta > params.alpha && params.beta > params.gamma) {
+    tradeoffAnalysis += `waktu tempuh menjadi prioritas utama, sehingga rute yang dipilih meminimalkan total waktu perjalanan kurir. `;
+  } else {
+    tradeoffAnalysis += `bobot yang digunakan relatif seimbang, sehingga solusi yang dihasilkan merupakan kompromi antara jarak, waktu tempuh, dan ketepatan waktu pengiriman. `;
+  }
+
+  tradeoffAnalysis += `Komposisi biaya total berbobot terdiri dari `;
+  tradeoffAnalysis += `${((totalDistanceCost / totalCost) * 100).toFixed(1)}% kontribusi jarak, `;
+  tradeoffAnalysis += `${((totalTimeCost / totalCost) * 100).toFixed(1)}% kontribusi waktu tempuh, `;
+  tradeoffAnalysis += `dan ${((totalDelayCost / totalCost) * 100).toFixed(1)}% kontribusi penalti keterlambatan.`;
 
   const explanation: RouteExplanation = {
     summary,
