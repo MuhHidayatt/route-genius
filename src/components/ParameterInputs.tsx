@@ -16,26 +16,30 @@ interface ParamFieldProps {
   value: number;
   onChange: (value: number) => void;
   tooltip: string;
+  description?: string;
   unit?: string;
   step?: number;
   min?: number;
   max?: number;
 }
 
-function ParamField({ label, value, onChange, tooltip, unit, step = 0.1, min = 0, max }: ParamFieldProps) {
+function ParamField({ label, value, onChange, tooltip, description, unit, step = 0.1, min = 0, max }: ParamFieldProps) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       <div className="flex items-center gap-2">
         <label className="text-sm font-medium text-foreground">{label}</label>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+            <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
           </TooltipTrigger>
           <TooltipContent className="max-w-xs">
             <p className="text-sm">{tooltip}</p>
           </TooltipContent>
         </Tooltip>
       </div>
+      {description && (
+        <p className="text-xs text-muted-foreground">{description}</p>
+      )}
       <div className="relative">
         <input
           type="number"
@@ -62,46 +66,48 @@ export function ParameterInputs({ params, onChange }: ParameterInputsProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="space-y-4">
       <ParamField
-        label="Average Speed"
+        label="Kecepatan Rata-rata Kurir"
         value={params.averageSpeed}
         onChange={(v) => updateParam('averageSpeed', v)}
-        tooltip="Average courier speed in kilometers per hour"
-        unit="km/h"
+        tooltip="Kecepatan rata-rata kurir dalam kilometer per jam"
+        description="Digunakan untuk menghitung waktu tempuh"
+        unit="km/jam"
         step={1}
         min={5}
         max={100}
       />
       
-      <div className="sm:col-span-2 pt-2">
-        <p className="text-sm font-medium text-muted-foreground mb-3">
-          Cost Function Weights
+      <div className="pt-2">
+        <p className="text-sm font-medium text-foreground mb-1">Bobot Fungsi Biaya</p>
+        <p className="text-xs text-muted-foreground mb-3">
+          Tentukan prioritas relatif antara jarak, waktu, dan keterlambatan
         </p>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-3">
           <ParamField
-            label="α (Distance)"
+            label="α (Jarak)"
             value={params.alpha}
             onChange={(v) => updateParam('alpha', v)}
-            tooltip="Weight for distance cost (km)"
+            tooltip="Bobot untuk biaya jarak (dalam km)"
             step={0.1}
             min={0}
             max={10}
           />
           <ParamField
-            label="β (Time)"
+            label="β (Waktu)"
             value={params.beta}
             onChange={(v) => updateParam('beta', v)}
-            tooltip="Weight for travel time cost (minutes)"
+            tooltip="Bobot untuk biaya waktu tempuh (dalam menit)"
             step={0.1}
             min={0}
             max={10}
           />
           <ParamField
-            label="γ (Delay)"
+            label="γ (Keterlambatan)"
             value={params.gamma}
             onChange={(v) => updateParam('gamma', v)}
-            tooltip="Weight for delay penalty (minutes late)"
+            tooltip="Bobot untuk penalti keterlambatan (dalam menit)"
             step={0.1}
             min={0}
             max={10}

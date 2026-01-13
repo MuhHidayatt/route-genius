@@ -1,11 +1,11 @@
 /**
- * RESULT INTERPRETATION COMPONENT
+ * KOMPONEN INTERPRETASI HASIL
  * 
- * Provides human-readable explanations of why the optimal route was chosen
- * and how different factors influenced the decision.
+ * Menyediakan penjelasan yang mudah dipahami tentang mengapa rute optimal dipilih
+ * dan bagaimana berbagai faktor memengaruhi keputusan.
  */
 
-import { RouteExplanation, OptimizationResult } from '@/lib/types';
+import { OptimizationResult } from '@/lib/types';
 import { 
   Lightbulb, 
   TrendingUp, 
@@ -28,7 +28,7 @@ interface ResultInterpretationProps {
 export function ResultInterpretation({ result }: ResultInterpretationProps) {
   const { explanation, costContributions, totalCost } = result;
 
-  // Calculate percentages
+  // Hitung persentase
   const distancePct = (costContributions.distanceContribution / totalCost) * 100;
   const timePct = (costContributions.timeContribution / totalCost) * 100;
   const delayPct = (costContributions.delayContribution / totalCost) * 100;
@@ -37,10 +37,10 @@ export function ResultInterpretation({ result }: ResultInterpretationProps) {
     <div className="card-elevated p-6 animate-fade-in">
       <h3 className="section-header flex items-center gap-2">
         <Lightbulb className="w-5 h-5 text-primary" />
-        Result Interpretation
+        Interpretasi Hasil
       </h3>
 
-      {/* Summary */}
+      {/* Ringkasan */}
       <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 mb-6">
         <div className="flex items-start gap-3">
           <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
@@ -50,11 +50,11 @@ export function ResultInterpretation({ result }: ResultInterpretationProps) {
         </div>
       </div>
 
-      {/* Cost Breakdown Visualization */}
+      {/* Visualisasi Breakdown Biaya */}
       <div className="mb-6">
         <h4 className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
           <Scale className="w-4 h-4 text-primary" />
-          Cost Contribution Breakdown
+          Breakdown Kontribusi Biaya
         </h4>
         
         {/* Stacked Bar */}
@@ -79,46 +79,46 @@ export function ResultInterpretation({ result }: ResultInterpretationProps) {
           </div>
         </div>
         
-        {/* Legend */}
+        {/* Legenda */}
         <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded bg-blue-500" />
-            <span>Distance: {costContributions.distanceContribution.toFixed(2)} ({distancePct.toFixed(1)}%)</span>
+            <span>Jarak: {costContributions.distanceContribution.toFixed(2)} ({distancePct.toFixed(1)}%)</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded bg-green-500" />
-            <span>Time: {costContributions.timeContribution.toFixed(2)} ({timePct.toFixed(1)}%)</span>
+            <span>Waktu: {costContributions.timeContribution.toFixed(2)} ({timePct.toFixed(1)}%)</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded bg-orange-500" />
-            <span>Delay: {costContributions.delayContribution.toFixed(2)} ({delayPct.toFixed(1)}%)</span>
+            <span>Keterlambatan: {costContributions.delayContribution.toFixed(2)} ({delayPct.toFixed(1)}%)</span>
           </div>
         </div>
       </div>
 
-      {/* Tradeoff Analysis */}
+      {/* Analisis Trade-off */}
       <div className="p-4 rounded-lg bg-muted/50 border border-border mb-6">
         <div className="flex items-center gap-2 mb-2">
           <TrendingUp className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium text-foreground">Tradeoff Analysis</span>
+          <span className="text-sm font-medium text-foreground">Analisis Trade-off</span>
         </div>
         <p className="text-xs text-muted-foreground leading-relaxed">
           {explanation.tradeoffAnalysis}
         </p>
       </div>
 
-      {/* Key Decisions */}
+      {/* Keputusan Utama */}
       <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="decisions">
           <AccordionTrigger className="text-sm font-medium text-foreground hover:no-underline">
             <span className="flex items-center gap-2">
               <Info className="w-4 h-4 text-primary" />
-              Key Decisions Explained ({explanation.keyDecisions.length} steps)
+              Penjelasan Keputusan Utama ({explanation.keyDecisions.length} langkah)
             </span>
           </AccordionTrigger>
           <AccordionContent className="pt-2">
             <p className="text-xs text-muted-foreground mb-3">
-              Each step shows why a particular order was chosen over alternatives.
+              Setiap langkah menunjukkan mengapa pesanan tertentu dipilih dibandingkan alternatif lainnya.
             </p>
             <div className="space-y-2">
               {explanation.keyDecisions.slice(0, 10).map((decision, index) => (
@@ -136,7 +136,7 @@ export function ResultInterpretation({ result }: ResultInterpretationProps) {
                       </span>
                       <ChevronRight className="w-3 h-3 text-muted-foreground" />
                       <span className="text-xs text-muted-foreground">
-                        {decision.alternativesConsidered} option{decision.alternativesConsidered !== 1 ? 's' : ''} considered
+                        {decision.alternativesConsidered} opsi dipertimbangkan
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground">
@@ -147,7 +147,7 @@ export function ResultInterpretation({ result }: ResultInterpretationProps) {
               ))}
               {explanation.keyDecisions.length > 10 && (
                 <p className="text-xs text-muted-foreground text-center py-2">
-                  ... and {explanation.keyDecisions.length - 10} more decisions
+                  ... dan {explanation.keyDecisions.length - 10} keputusan lainnya
                 </p>
               )}
             </div>
@@ -155,13 +155,13 @@ export function ResultInterpretation({ result }: ResultInterpretationProps) {
         </AccordionItem>
       </Accordion>
 
-      {/* Academic Note */}
+      {/* Catatan Akademis */}
       <div className="mt-6 p-3 rounded-lg border border-dashed border-border">
         <p className="text-xs text-muted-foreground text-center">
-          <strong className="text-foreground">Academic Note:</strong> This solution was obtained using 
-          <strong className="text-primary"> Backward Recursion Dynamic Programming</strong> with 
-          top-down memoization, following the Bellman optimality principle.
-          No greedy shortcuts or external solvers were used.
+          <strong className="text-foreground">Catatan Akademis:</strong> Solusi ini diperoleh menggunakan 
+          <strong className="text-primary"> Backward Recursion Dynamic Programming</strong> dengan 
+          top-down memoization, mengikuti prinsip optimalitas Bellman.
+          Tidak ada shortcut greedy atau solver eksternal yang digunakan.
         </p>
       </div>
     </div>

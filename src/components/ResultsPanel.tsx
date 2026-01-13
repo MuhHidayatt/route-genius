@@ -53,13 +53,13 @@ export function ResultsPanel({ result }: ResultsPanelProps) {
     const hours = Math.floor(minutes / 60);
     const mins = Math.round(minutes % 60);
     if (hours > 0) {
-      return `${hours}h ${mins}m`;
+      return `${hours}j ${mins}m`;
     }
     return `${mins}m`;
   };
 
   const formatDateTime = (date: Date): string => {
-    return date.toLocaleTimeString('en-US', { 
+    return date.toLocaleTimeString('id-ID', { 
       hour: '2-digit', 
       minute: '2-digit',
       hour12: false 
@@ -68,53 +68,58 @@ export function ResultsPanel({ result }: ResultsPanelProps) {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Summary Stats */}
+      {/* Statistik Ringkasan */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard
           icon={<Route className="w-4 h-4" />}
-          label="Total Distance"
+          label="Total Jarak"
           value={`${result.totalDistance.toFixed(2)} km`}
+          tooltip="Total jarak yang ditempuh kurir"
         />
         <StatCard
           icon={<Clock className="w-4 h-4" />}
-          label="Total Time"
+          label="Total Waktu"
           value={formatTime(result.totalTravelTime)}
+          tooltip="Total waktu tempuh perjalanan"
         />
         <StatCard
           icon={<AlertTriangle className="w-4 h-4" />}
-          label="Total Delay"
+          label="Total Keterlambatan"
           value={formatTime(result.totalDelayPenalty)}
-          subValue={result.totalDelayPenalty > 0 ? 'Penalty incurred' : 'No delays'}
+          subValue={result.totalDelayPenalty > 0 ? 'Ada penalti' : 'Tepat waktu'}
+          tooltip="Total waktu keterlambatan dari tenggat"
         />
         <StatCard
           icon={<Calculator className="w-4 h-4" />}
-          label="Total Cost"
+          label="Total Biaya"
           value={result.totalCost.toFixed(2)}
-          subValue="Weighted sum"
+          subValue="Fungsi objektif"
+          tooltip="Total biaya terbobot (α×jarak + β×waktu + γ×keterlambatan)"
         />
         <StatCard
           icon={<Zap className="w-4 h-4" />}
-          label="Computation"
+          label="Waktu Komputasi"
           value={`${result.computationTime.toFixed(0)}ms`}
+          tooltip="Waktu eksekusi algoritma DP"
         />
       </div>
 
-      {/* Optimal Sequence */}
+      {/* Urutan Optimal */}
       <div className="card-elevated p-6">
         <h3 className="section-header flex items-center gap-2">
           <MapPin className="w-5 h-5 text-primary" />
-          Optimal Delivery Sequence
+          Urutan Pengiriman Optimal
         </h3>
         
         <div className="space-y-3">
-          {/* Depot Start */}
+          {/* Depot Awal */}
           <div className="sequence-step opacity-60">
             <div className="sequence-number bg-muted text-muted-foreground">
               D
             </div>
             <div className="flex-1">
               <p className="font-medium text-foreground">Depot</p>
-              <p className="text-sm text-muted-foreground">Starting point</p>
+              <p className="text-sm text-muted-foreground">Titik keberangkatan</p>
             </div>
           </div>
           
@@ -129,13 +134,13 @@ export function ResultsPanel({ result }: ResultsPanelProps) {
                   {step.delayPenalty > 0 && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-warning/10 text-warning">
                       <AlertTriangle className="w-3 h-3" />
-                      {formatTime(step.delayPenalty)} late
+                      {formatTime(step.delayPenalty)} terlambat
                     </span>
                   )}
                 </div>
                 <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                  <span>Arrive: {formatDateTime(step.arrivalTime)}</span>
-                  <span>Due: {formatDateTime(step.order.due_time)}</span>
+                  <span>Tiba: {formatDateTime(step.arrivalTime)}</span>
+                  <span>Tenggat: {formatDateTime(step.order.due_time)}</span>
                   <span>{step.distance.toFixed(2)} km</span>
                 </div>
               </div>
@@ -143,31 +148,31 @@ export function ResultsPanel({ result }: ResultsPanelProps) {
                 <p className="text-sm font-mono text-foreground">
                   +{step.stepCost.toFixed(2)}
                 </p>
-                <p className="text-xs text-muted-foreground">cost</p>
+                <p className="text-xs text-muted-foreground">biaya</p>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Detailed Table */}
+      {/* Tabel Detail */}
       <div className="card-elevated overflow-hidden">
         <div className="p-6 border-b">
-          <h3 className="section-header mb-0">Delivery Schedule Details</h3>
+          <h3 className="section-header mb-0">Detail Jadwal Pengiriman</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="data-table">
             <thead>
               <tr className="bg-muted/30">
                 <th>#</th>
-                <th>Order ID</th>
-                <th>Location</th>
-                <th>Arrival</th>
-                <th>Due Time</th>
-                <th>Distance</th>
-                <th>Travel Time</th>
-                <th>Delay</th>
-                <th>Step Cost</th>
+                <th>ID Pesanan</th>
+                <th>Lokasi</th>
+                <th>Tiba</th>
+                <th>Tenggat</th>
+                <th>Jarak</th>
+                <th>Waktu Tempuh</th>
+                <th>Keterlambatan</th>
+                <th>Biaya Langkah</th>
               </tr>
             </thead>
             <tbody>
@@ -191,7 +196,7 @@ export function ResultsPanel({ result }: ResultsPanelProps) {
             </tbody>
             <tfoot>
               <tr className="bg-muted/30 font-semibold">
-                <td colSpan={5} className="text-right">Totals:</td>
+                <td colSpan={5} className="text-right">Total:</td>
                 <td>{result.totalDistance.toFixed(2)} km</td>
                 <td>{formatTime(result.totalTravelTime)}</td>
                 <td>{formatTime(result.totalDelayPenalty)}</td>
