@@ -6,7 +6,6 @@ import { ResultsPanel } from '@/components/ResultsPanel';
 import { ProblemExplanation } from '@/components/ProblemExplanation';
 import { DPTransparency } from '@/components/DPTransparency';
 import { ResultInterpretation } from '@/components/ResultInterpretation';
-import { RouteMap } from '@/components/RouteMap';
 import { parseCSV } from '@/lib/csv-parser';
 import { dp_solve } from '@/lib/dp-solver';
 import { Order, Parameters, OptimizationResult } from '@/lib/types';
@@ -206,22 +205,6 @@ const Index = () => {
                   <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                     <span className="text-primary font-bold text-sm">3</span>
                   </div>
-                  <h2 className="text-lg font-semibold text-foreground">Visualisasi Rute Pengiriman</h2>
-                </div>
-                <div className="card-elevated p-4">
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Peta menampilkan rute optimal dari depot ke setiap titik pengiriman. 
-                    Klik marker untuk melihat detail pengiriman.
-                  </p>
-                  <RouteMap sequence={result.sequence} />
-                </div>
-              </section>
-
-              <section>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <span className="text-primary font-bold text-sm">4</span>
-                  </div>
                   <h2 className="text-lg font-semibold text-foreground">Transparansi Algoritma DP</h2>
                 </div>
                 <DPTransparency statistics={result.dpStatistics} />
@@ -230,7 +213,7 @@ const Index = () => {
               <section>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <span className="text-primary font-bold text-sm">5</span>
+                    <span className="text-primary font-bold text-sm">4</span>
                   </div>
                   <h2 className="text-lg font-semibold text-foreground">Interpretasi Hasil</h2>
                 </div>
