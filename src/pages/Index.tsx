@@ -7,7 +7,6 @@ import { ProblemExplanation } from '@/components/ProblemExplanation';
 import { DPTransparency } from '@/components/DPTransparency';
 import { ResultInterpretation } from '@/components/ResultInterpretation';
 import RouteMap from '@/components/RouteMap';
-import { ExportButtons } from '@/components/ExportButtons';
 import { parseCSV } from '@/lib/csv-parser';
 import { dp_solve } from '@/lib/dp-solver';
 import { Order, Parameters, OptimizationResult } from '@/lib/types';
@@ -194,14 +193,11 @@ const Index = () => {
           {result && (
             <>
               <section>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <span className="text-primary font-bold text-sm">2</span>
-                    </div>
-                    <h2 className="text-lg font-semibold text-foreground">Hasil Optimasi</h2>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <span className="text-primary font-bold text-sm">2</span>
                   </div>
-                  <ExportButtons result={result} orders={orders} />
+                  <h2 className="text-lg font-semibold text-foreground">Hasil Optimasi</h2>
                 </div>
                 <ResultsPanel result={result} />
                 
