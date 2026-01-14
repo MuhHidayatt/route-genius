@@ -6,6 +6,7 @@ import { ResultsPanel } from '@/components/ResultsPanel';
 import { ProblemExplanation } from '@/components/ProblemExplanation';
 import { DPTransparency } from '@/components/DPTransparency';
 import { ResultInterpretation } from '@/components/ResultInterpretation';
+import RouteMap from '@/components/RouteMap';
 import { parseCSV } from '@/lib/csv-parser';
 import { dp_solve } from '@/lib/dp-solver';
 import { Order, Parameters, OptimizationResult } from '@/lib/types';
@@ -199,6 +200,11 @@ const Index = () => {
                   <h2 className="text-lg font-semibold text-foreground">Hasil Optimasi</h2>
                 </div>
                 <ResultsPanel result={result} />
+                
+                {/* Route Map Visualization */}
+                <div className="mt-6">
+                  <RouteMap result={result} orders={orders} />
+                </div>
               </section>
 
               <section>
