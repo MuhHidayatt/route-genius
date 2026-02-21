@@ -7,6 +7,7 @@ import { ProblemExplanation } from '@/components/ProblemExplanation';
 import { DPTransparency } from '@/components/DPTransparency';
 import { ResultInterpretation } from '@/components/ResultInterpretation';
 import RouteMap from '@/components/RouteMap';
+import { ResultsCharts } from '@/components/ResultsCharts';
 import { parseCSV } from '@/lib/csv-parser';
 import { dp_solve } from '@/lib/dp-solver';
 import { Order, Parameters, OptimizationResult } from '@/lib/types';
@@ -201,6 +202,11 @@ const Index = () => {
                 </div>
                 <ResultsPanel result={result} />
                 
+                {/* Charts */}
+                <div className="mt-6">
+                  <ResultsCharts result={result} />
+                </div>
+
                 {/* Route Map Visualization */}
                 <div className="mt-6">
                   <RouteMap result={result} orders={orders} />
