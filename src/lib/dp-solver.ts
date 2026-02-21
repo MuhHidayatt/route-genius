@@ -27,6 +27,9 @@ import {
   RecursionStep,
   RouteExplanation,
   DecisionExplanation,
+  StateGraphData,
+  StateNode,
+  StateEdge,
   DEPOT_LOCATION 
 } from './types';
 
@@ -220,11 +223,16 @@ export function dp_solve(
   const memo = new Map<string, DPResult>();
   
   // ========== STATISTICS TRACKING ==========
-  let statesEvaluated = 0;
-  let memoHits = 0;
-  let maxDepth = 0;
-  const recursionTrace: RecursionStep[] = [];
-  
+   let statesEvaluated = 0;
+   let memoHits = 0;
+   let maxDepth = 0;
+   const recursionTrace: RecursionStep[] = [];
+   
+   // State graph tracking
+   const graphNodes = new Map<string, StateNode>();
+   const graphEdges: StateEdge[] = [];
+   const MAX_GRAPH_NODES = 60; // Limit for visualization
+   
   // Find the earliest order time as the starting time
   const startingTime = Math.min(...orders.map(o => o.order_time.getTime()));
 
@@ -252,9 +260,21 @@ export function dp_solve(
     
     // ===== BASE CASE =====
     // No more orders to deliver - terminal state with zero cost
-    if (remainingOrderIds.size === 0) {
-      return { cost: 0, nextOrderId: null };
-    }
+     if (remainingOrderIds.size === 0) {
+       const termKey = create_state_key(currentLocation, remainingOrderIds, currentTime);
+       if (graphNodes.size < MAX_GRAPH_NODES && !graphNodes.has(termKey)) {
+         graphNodes.set(termKey, {
+           id: termKey,
+           label: `Terminal (d=${depth})`,
+           remainingCount: 0,
+           depth,
+           cost: 0,
+           isTerminal: true,
+           isInitial: false,
+         });
+       }
+       return { cost: 0, nextOrderId: null };
+     }
 
     // ===== CHECK MEMOIZATION CACHE =====
     const stateKey = create_state_key(currentLocation, remainingOrderIds, currentTime);
@@ -317,6 +337,9 @@ export function dp_solve(
       const newRemaining = new Set(remainingOrderIds);
       newRemaining.delete(orderId);
 
+      // Track edge for state graph
+      const childKey = create_state_key(orderLocation, newRemaining, arrivalTimeMs);
+
       // ----- Recursive call: solve subproblem -----
       const futureResult = dp_recursive(
         orderLocation,
@@ -328,10 +351,35 @@ export function dp_solve(
       // ----- Apply Bellman equation: min(stepCost + futureCost) -----
       const totalCost = stepCost + futureResult.cost;
 
+      // Record edge for graph (limit size)
+      if (graphNodes.size < MAX_GRAPH_NODES) {
+        graphEdges.push({
+          from: stateKey,
+          to: childKey,
+          orderId,
+          stepCost,
+          isOptimal: false, // will be set later
+        });
+      }
+
       if (totalCost < minCost) {
         minCost = totalCost;
         bestNextOrder = orderId;
       }
+    }
+
+    // Record node for graph
+    if (graphNodes.size < MAX_GRAPH_NODES) {
+      const remaining = Array.from(remainingOrderIds);
+      graphNodes.set(stateKey, {
+        id: stateKey,
+        label: `Sisa: {${remaining.join(', ')}}`,
+        remainingCount: remainingOrderIds.size,
+        depth,
+        cost: minCost,
+        isTerminal: false,
+        isInitial: depth === 0,
+      });
     }
 
     // ===== STORE IN MEMOIZATION CACHE =====
@@ -532,6 +580,51 @@ export function dp_solve(
   };
 
   // ========================================
+  // BUILD STATE GRAPH
+  // ========================================
+  // Mark optimal edges by tracing through the optimal sequence
+  const optimalPathIds: string[] = [];
+  {
+    let loc = DEPOT_LOCATION;
+    let time = startingTime;
+    let remIds = new Set(allOrderIds);
+    const startKey = create_state_key(loc, remIds, time);
+    optimalPathIds.push(startKey);
+
+    for (const step of sequence) {
+      const orderLoc: Location = { latitude: step.order.latitude, longitude: step.order.longitude };
+      const newRem = new Set(remIds);
+      newRem.delete(step.order.order_id);
+      const serviceTime = params.serviceTime ?? 5;
+      const arrMs = time + (step.travelTime + serviceTime) * 60000;
+      const childKey = create_state_key(orderLoc, newRem, arrMs);
+      optimalPathIds.push(childKey);
+
+      // Mark the edge as optimal
+      const parentKey = create_state_key(loc, remIds, time);
+      for (const edge of graphEdges) {
+        if (edge.from === parentKey && edge.to === childKey && edge.orderId === step.order.order_id) {
+          edge.isOptimal = true;
+          break;
+        }
+      }
+
+      loc = orderLoc;
+      time = arrMs;
+      remIds = newRem;
+    }
+  }
+
+  // Filter edges to only those connecting existing graph nodes
+  const validEdges = graphEdges.filter(e => graphNodes.has(e.from) && graphNodes.has(e.to));
+
+  const stateGraph: StateGraphData = {
+    nodes: Array.from(graphNodes.values()),
+    edges: validEdges,
+    optimalPath: optimalPathIds.filter(id => graphNodes.has(id)),
+  };
+
+  // ========================================
   // COMPILE STATISTICS
   // ========================================
   const dpStatistics: DPStatistics = {
@@ -540,7 +633,8 @@ export function dp_solve(
     uniqueStatesStored: memo.size,
     maxRecursionDepth: maxDepth,
     memoizationExamples,
-    recursionTrace: recursionTrace.slice(0, 30), // Limit for display
+    recursionTrace: recursionTrace.slice(0, 30),
+    stateGraph,
   };
 
   return {

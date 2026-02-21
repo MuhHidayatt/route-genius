@@ -47,6 +47,32 @@ export interface DPStatistics {
   maxRecursionDepth: number;
   memoizationExamples: MemoizedStateExample[];
   recursionTrace: RecursionStep[];
+  stateGraph: StateGraphData;
+}
+
+// State graph for visualizing DP state dependencies
+export interface StateGraphData {
+  nodes: StateNode[];
+  edges: StateEdge[];
+  optimalPath: string[]; // node IDs on the optimal path
+}
+
+export interface StateNode {
+  id: string;
+  label: string;
+  remainingCount: number;
+  depth: number;
+  cost: number | null;
+  isTerminal: boolean;
+  isInitial: boolean;
+}
+
+export interface StateEdge {
+  from: string;
+  to: string;
+  orderId: string;
+  stepCost: number;
+  isOptimal: boolean;
 }
 
 // Trace of recursion for educational purposes

@@ -7,6 +7,7 @@ import { ProblemExplanation } from '@/components/ProblemExplanation';
 import { DPTransparency } from '@/components/DPTransparency';
 import { ResultInterpretation } from '@/components/ResultInterpretation';
 import RouteMap from '@/components/RouteMap';
+import StateGraph from '@/components/StateGraph';
 import { parseCSV } from '@/lib/csv-parser';
 import { dp_solve } from '@/lib/dp-solver';
 import { Order, Parameters, OptimizationResult } from '@/lib/types';
@@ -212,6 +213,16 @@ const Index = () => {
                   <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                     <span className="text-primary font-bold text-sm">3</span>
                   </div>
+                  <h2 className="text-lg font-semibold text-foreground">Graf Dependensi State DP</h2>
+                </div>
+                <StateGraph graphData={result.dpStatistics.stateGraph} />
+              </section>
+
+              <section>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <span className="text-primary font-bold text-sm">4</span>
+                  </div>
                   <h2 className="text-lg font-semibold text-foreground">Transparansi Algoritma DP</h2>
                 </div>
                 <DPTransparency statistics={result.dpStatistics} />
@@ -220,7 +231,7 @@ const Index = () => {
               <section>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <span className="text-primary font-bold text-sm">4</span>
+                    <span className="text-primary font-bold text-sm">5</span>
                   </div>
                   <h2 className="text-lg font-semibold text-foreground">Interpretasi Hasil</h2>
                 </div>
