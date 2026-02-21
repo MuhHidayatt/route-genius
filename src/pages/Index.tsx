@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { FileUpload } from '@/components/FileUpload';
 import { ParameterInputs } from '@/components/ParameterInputs';
 import { OrdersPreview } from '@/components/OrdersPreview';
@@ -10,8 +10,9 @@ import RouteMap from '@/components/RouteMap';
 import StateGraph from '@/components/StateGraph';
 import { parseCSV } from '@/lib/csv-parser';
 import { dp_solve } from '@/lib/dp-solver';
+import { exportToPDF } from '@/lib/pdf-export';
 import { Order, Parameters, OptimizationResult } from '@/lib/types';
-import { Truck, Play, RotateCcw, AlertCircle, GraduationCap } from 'lucide-react';
+import { Truck, Play, RotateCcw, AlertCircle, GraduationCap, FileDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 const defaultParams: Parameters = {
@@ -29,6 +30,7 @@ const Index = () => {
   const [result, setResult] = useState<OptimizationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isOptimizing, setIsOptimizing] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const handleFileContent = (content: string, name: string) => {
     setError(null);
@@ -77,6 +79,24 @@ const Index = () => {
   const handleReset = () => {
     setParams(defaultParams);
     setResult(null);
+  };
+
+  const handleExportPDF = async () => {
+    if (!result) return;
+    setIsExporting(true);
+    toast.info('Menyiapkan dokumen PDF...');
+    try {
+      await exportToPDF(result, params, [
+        '[data-pdf-section="route-map"]',
+        '[data-pdf-section="state-graph"]',
+      ]);
+      toast.success('PDF berhasil diunduh!');
+    } catch (err) {
+      console.error(err);
+      toast.error('Gagal mengekspor PDF');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -194,16 +214,35 @@ const Index = () => {
           {result && (
             <>
               <section>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <span className="text-primary font-bold text-sm">2</span>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <span className="text-primary font-bold text-sm">2</span>
+                    </div>
+                    <h2 className="text-lg font-semibold text-foreground">Hasil Optimasi</h2>
                   </div>
-                  <h2 className="text-lg font-semibold text-foreground">Hasil Optimasi</h2>
+                  <button
+                    onClick={handleExportPDF}
+                    disabled={isExporting}
+                    className="btn-secondary gap-2 text-sm px-4 py-2"
+                  >
+                    {isExporting ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-muted-foreground/30 border-t-muted-foreground rounded-full animate-spin" />
+                        Mengekspor...
+                      </>
+                    ) : (
+                      <>
+                        <FileDown className="w-4 h-4" />
+                        Ekspor PDF
+                      </>
+                    )}
+                  </button>
                 </div>
                 <ResultsPanel result={result} />
                 
                 {/* Route Map Visualization */}
-                <div className="mt-6">
+                <div className="mt-6" data-pdf-section="route-map">
                   <RouteMap result={result} orders={orders} />
                 </div>
               </section>
@@ -215,7 +254,7 @@ const Index = () => {
                   </div>
                   <h2 className="text-lg font-semibold text-foreground">Graf Dependensi State DP</h2>
                 </div>
-                <StateGraph graphData={result.dpStatistics.stateGraph} />
+                <div data-pdf-section="state-graph"><StateGraph graphData={result.dpStatistics.stateGraph} /></div>
               </section>
 
               <section>
